@@ -3,6 +3,9 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
     minifycss = require('gulp-minify-css'),
     imagemin = require('gulp-imagemin'),
+    jshint = require('gulp-jshint');
+    concat = require('gulp-concat');
+    uglify = require('gulp-uglify');
     rename = require('gulp-rename'),
     notify = require('gulp-notify'),
     cache = require('gulp-cache'),
@@ -20,13 +23,16 @@ gulp.task('styles', function() {
 });
 
 gulp.task('scripts', function() {
-  return gulp.src('src/assets/javascripts/**/*.js')
+  gulp.src('src/assets/javascripts/application.js')
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter('default'))
     .pipe(concat('application.js'))
     .pipe(gulp.dest('dist/assets/javascripts'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
+    .pipe(gulp.dest('dist/assets/javascripts'));
+
+  gulp.src('src/assets/javascripts/jquery*.min.js')
     .pipe(gulp.dest('dist/assets/javascripts'))
     .pipe(notify({ message: 'Scripts task complete' }));
 });
@@ -48,15 +54,16 @@ gulp.task('files', function() {
 });
 
 gulp.task('clean', function() {
-  return del(['src/**/*.html', 'dist/assets/css', 'dist/assets/images']);
+  return del(['src/**/*.html', 'dist/assets/css', 'dist/assets/images', 'dist/assets/javascripts']);
 });
 
 gulp.task('default', ['clean'], function() {
-  gulp.start('files', 'styles', 'images');
+  gulp.start('files', 'styles', 'scripts', 'images');
 });
 
 gulp.task('watch', function() {
   gulp.watch('src/assets/sass/**/*.scss', ['styles']);
+  gulp.watch('src/assets/javascripts/**/*.js', ['scripts']);
   gulp.watch('src/assets/images/**/*', ['images']);
   gulp.watch('src/**/*.html', ['files']);
 
